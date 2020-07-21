@@ -1,0 +1,45 @@
+# load tidyverse
+library("tidyverse")
+
+#load two txt tables downloaded from BlastKoala run (called "user_ko_definition.txt" when downloaded prior to revision, renamed here for convenience)
+moralis <- read.delim("moralis_ko.txt")
+msmithii <- read.delim("msmithii_ko.txt")
+
+#assign column names to table
+column_names <- c("Query", "KO", "Definition", "Score1", "Second_Best", "Score2")
+colnames(moralis) <- column_names
+colnames(msmithii) <- column_names
+
+#each category needs to be converted into a character data type for easier sorting later
+moralis$KO <- as.character(moralis$KO)
+msmithii$KO <- as.character(msmithii$KO)
+
+moralis$Definition <- as.character(moralis$Definition)
+msmithii$Definition <- as.character(msmithii$Definition)
+
+#isolate only the KO numbers and their definitons from each dataset
+msmithii_ko <- msmithii[, 2:3]
+moralis_ko <- moralis[, 2:3]
+
+#some assigned kos may be empty this allows you to keep the ones assigned
+msmithii_ko_to_join <- msmithii_ko %>% filter(str_detect(msmithii_ko[,1], "^K"))
+moralis_ko_to_join <- moralis_ko %>% filter(str_detect(moralis_ko[,1], "^K"))
+
+#optional: gets counts of each ko for each genome
+msmithii_ko_to_join2 <- msmithii_ko %>% group_by(KO) %>% count()
+moralis_ko_to_join2 <- moralis_ko %>%  group_by(KO) %>% count()
+
+#joining step
+
+ko_full_join <- msmithii_ko_to_join %>%
+#full join to keep all rows and columns and return NAs
+  full_join(moralis_ko_to_join, by = "KO", suffix=c("_msmithii", "_moralis")) %>%
+#full or left join to add counts into the final table
+  full_join(msmithii_ko_to_join2, by = "KO", suffix=c("_msmithii", "_moralis")) %>%
+  full_join(moralis_ko_to_join2, by = "KO", suffix=c("_msmithii", "_moralis"))
+
+#optional: write results into a CSV for further processing
+write.csv(m_ko_full_join, "ko_counts_and_defintions.csv")
+
+
+  
