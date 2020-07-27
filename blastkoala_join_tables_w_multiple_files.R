@@ -77,8 +77,7 @@ ko_full_join <- marbor %>% full_join(mbov, by = c("KO", "Definition")) %>%
   full_join(mtha, by = c("KO", "Definition")) %>% 
   full_join(mwoi, by = c("KO", "Definition")) %>% 
   full_join(mwol, by = c("KO", "Definition")) %>% 
-  full_join(mfili, by = c("KO", "Definition")) %>% 
-  full_join(mcut, by = c("KO", "Definition")) %>%
+  full_join(mfili, by = c("KO", "Definition")) %>%
   arrange(KO)
 
 #reassign names in one line of code
